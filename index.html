@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI 기반의 전자/전기/컴퓨터/제어 융합 엔지니어링 연구소 - Cayson Tech">
+    <title>Cayson Tech | AI & Convergence Engineering</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Google Identity Services Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">🤖</span>
+                <span class="logo-text">Cayson <span class="accent">Tech</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#features" class="nav-link">Expertise</a></li>
+                <li><a href="#about" class="nav-link">About Lab</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="auth-container">
+                <!-- Google Login Button Container -->
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="medium"
+                     data-theme="filled_black"
+                     data-text="signin_with"
+                     data-shape="pill"
+                     data-logo_alignment="left">
+                </div>
+                
+                <!-- User Profile (Hidden by default) -->
+                <div id="userProfile" class="user-profile" style="display: none;">
+                    <img id="userImage" src="" alt="User" class="user-avatar">
+                    <span id="userName" class="user-name"></span>
+                    <button onclick="handleSignOut()" class="sign-out-btn">Logout</button>
+                </div>
+            </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-bg-effects">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge"><span class="badge-dot"></span>AI Convergence Lab</div>
+                <h1 class="hero-title">Leading Innovation with <span class="gradient-text">Artificial Intelligence</span></h1>
+                <p class="hero-description">
+                    <strong>AI를 핵심으로</strong> 전자·전기·컴퓨터·제어 기술을 융합합니다.<br>
+                    Cayson Tech는 미래를 선도하는 혁신적인 엔지니어링 솔루션을 연구합니다.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='#contact'"><span>Get in Touch</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                    <button class="btn btn-glass" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>View Expertise</span></button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><span class="stat-num">AI</span><span class="stat-label">Core Tech</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">4+</span><span class="stat-label">Fields Fused</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Innovation</span></div>
+                </div>
+            </div>
+            <div class="hero-spline">
+                <div class="spline-wrapper">
+                    <iframe src='https://my.spline.design/robotfollowcursorforlandingpage-Y1U9GwOBktqsqU28dYTTrYAu/' frameborder='0' width='100%' height='100%'></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator"><div class="scroll-mouse"><div class="scroll-wheel"></div></div><span>Scroll to explore</span></div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Core Expertise</span>
+                <h2 class="section-title"><span class="gradient-text">AI</span> & Engineering Fusion</h2>
+                <p class="section-desc">인공지능을 중심으로 다양한 공학 분야를 융합하여 새로운 가치를 창출합니다.</p>
+            </div>
+            <div class="features-grid">
+                <!-- 1. AI (Core) -->
+                <div class="feature-card">
+                    <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"></path></svg></div>
+                    <h3>Artificial Intelligence</h3>
+                    <p>연구소의 핵심 기술로, 딥러닝 및 머신러닝 알고리즘을 산업 현장에 최적화하여 적용합니다.</p>
+                </div>
+                <!-- 2. Embedded & Control -->
+                <div class="feature-card">
+                    <div class="feature-icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
+                    <h3>Embedded & Control</h3>
+                    <p>전자/전기/제어 공학을 기반으로 고성능 임베디드 시스템과 정밀 자동 제어 솔루션을 설계합니다.</p>
+                </div>
+                <!-- 3. Computer Engineering -->
+                <div class="feature-card">
+                    <div class="feature-icon icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+                    <h3>Computer Eng.</h3>
+                    <p>Python 기반의 자동화 도구, 고성능 컴퓨팅, 시스템 아키텍처 설계를 통해 기술을 통합합니다.</p>
+                </div>
+                <!-- 4. IoT & Connectivity -->
+                <div class="feature-card">
+                    <div class="feature-icon icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg></div>
+                    <h3>Smart IoT</h3>
+                    <p>모든 장치를 연결하고 AI로 제어하는 초연결 지능형 IoT 플랫폼을 구축합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-visual">
+                    <div class="floating-el el-1"><span>🧠</span>AI Core</div>
+                    <div class="floating-el el-2"><span>⚡</span>Electric</div>
+                    <div class="floating-el el-3"><span>💻</span>Computer</div>
+                    <div class="floating-el el-4"><span>⚙️</span>Control</div>
+                    <div class="center-circle">C</div>
+                </div>
+                <div class="about-content">
+                    <span class="section-tag">About Lab</span>
+                    <h2 class="section-title">AI Based <br><span class="gradient-text">Convergence Lab</span></h2>
+                    <p>
+                        Cayson Tech는 단순한 기술 개발을 넘어섭니다.<br>
+                        <strong>AI 기술을 최우선(First)</strong>으로 하여 전자, 전기, 컴퓨터, 제어 기술을 유기적으로 융합합니다.
+                        우리는 산업 자동화부터 스마트 시티까지, 기술의 경계를 허무는 혁신적인 엔지니어링 미래를 만들어갑니다.
+                    </p>
+                    <ul class="checklist">
+                        <li><span class="check">✓</span>최신 딥러닝/머신러닝 알고리즘 고도화</li>
+                        <li><span class="check">✓</span>다분야 융합 엔지니어링 전문성</li>
+                        <li><span class="check">✓</span>실무 중심의 Python 자동화 및 임베디드 솔루션</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="window.open('https://cayson.pythonanywhere.com/about')">More About Us</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <span class="section-tag">Contact</span>
+                    <h2 class="section-title">Connect with <span class="gradient-text">Cayson Tech</span></h2>
+                    <p>기술 문의나 프로젝트 제안이 있으신가요? Cayson Tech 연구소와 함께 미래를 설계하세요.</p>
+                    <div class="contact-cards">
+                        <div class="contact-card"><span class="c-icon">📧</span><div><span class="c-label">Email</span><span class="c-value">contact@caysontech.com</span></div></div>
+                        <div class="contact-card"><span class="c-icon">🏫</span><div><span class="c-label">Lab</span><span class="c-value">Engineering Research Center</span></div></div>
+                        <div class="contact-card"><span class="c-icon">🌐</span><div><span class="c-label">Website</span><span class="c-value">cayson.pythonanywhere.com</span></div></div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <h3>Get In Touch</h3>
+                    <div class="form-row"><input type="text" placeholder="Name" required><input type="text" placeholder="Company/Org" required></div>
+                    <input type="email" placeholder="Email Address" required>
+                    <textarea rows="4" placeholder="Message or Inquiry" required></textarea>
+                    <button type="submit" class="btn btn-primary btn-full">Send Message <span>→</span></button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="#" class="logo"><span class="logo-icon">🤖</span><span class="logo-text">Cayson <span class="accent">Tech</span></span></a>
+                    <p>AI-Powered Convergence Engineering Lab.</p>
+                </div>
+                <div class="footer-links">
+                    <div><h4>Research</h4><a href="#">AI Core</a><a href="#">Embedded</a><a href="#">IoT</a></div>
+                    <div><h4>Lab</h4><a href="#">About</a><a href="#">Projects</a><a href="#">Careers</a></div>
+                    <div><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2026 Cayson Tech. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
