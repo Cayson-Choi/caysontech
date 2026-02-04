@@ -200,49 +200,60 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .feature-card h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; position: relative; }
 .feature-card p { font-size: 0.9rem; color: var(--text-secondary); position: relative; line-height: 1.5; }
 
-/* ===== About Section ===== */
+/* ===== About Section (Education & Training) ===== */
 .about { padding: 8rem 0; position: relative; }
-.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-.about-visual { position: relative; height: 400px; }
-.floating-el {
-    position: absolute;
-    padding: 1rem 1.5rem;
+.about-container { max-width: 1000px; margin: 0 auto; }
+.about-header { text-align: center; margin-bottom: 4rem; }
+.about-header .section-desc { font-size: 1.2rem; line-height: 1.8; margin-top: 1.5rem; color: var(--text-secondary); }
+.about-header strong { color: var(--text-primary); font-weight: 600; }
+
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.training-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    backdrop-filter: blur(10px);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 600;
-    animation: float 6s ease-in-out infinite;
+    flex-direction: column;
+    height: 100%;
 }
-.floating-el span:first-child { font-size: 1.5rem; }
-.el-1 { top: 10%; left: 10%; animation-delay: 0s; }
-.el-2 { top: 15%; right: 10%; animation-delay: 1s; }
-.el-3 { bottom: 20%; left: 15%; animation-delay: 2s; }
-.el-4 { bottom: 10%; right: 15%; animation-delay: 0.5s; }
-.center-circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120px;
-    height: 120px;
-    background: var(--gradient);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    box-shadow: var(--shadow-glow);
-    animation: pulse-slow 4s ease-in-out infinite;
+
+.training-card::hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3); }
+
+.t-icon { font-size: 2rem; margin-bottom: 1rem; display: inline-block; }
+.t-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+.t-sub { font-size: 0.85rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: block; }
+.t-desc { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; flex-grow: 1; margin-bottom: 1.5rem; }
+.t-list { list-style: none; margin-bottom: 1.5rem; }
+.t-list li { padding-left: 1.5rem; position: relative; font-size: 0.9rem; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+.t-list li::before { content: '•'; color: var(--accent); position: absolute; left: 0; font-weight: bold; }
+
+.btn-training {
+    width: 100%;
+    margin-top: auto;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    transition: 0.3s;
+    text-align: center;
 }
-.about-content { display: flex; flex-direction: column; gap: 1.5rem; }
-.about-content p { font-size: 1.125rem; color: var(--text-secondary); }
-.checklist { display: flex; flex-direction: column; gap: 1rem; }
-.checklist li { display: flex; align-items: center; gap: 1rem; font-size: 1rem; }
-.check { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--gradient); border-radius: 50%; font-size: 0.875rem; }
+.training-card:hover .btn-training { background: var(--accent); border-color: var(--accent); color: white; }
+
+@media (max-width: 768px) {
+    .training-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
 
 /* ===== Contact Section ===== */
 .contact { padding: 8rem 0; background: var(--bg-secondary); }
