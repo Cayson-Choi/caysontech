@@ -33,19 +33,11 @@
             
             <div class="auth-container">
                 <!-- Google Login Button Container -->
-                <div id="g_id_onload"
-                     data-client_id="74309502037-1et357abb7ubep16344dq9d8kblpldgg.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="medium"
-                     data-theme="filled_black"
-                     data-text="signin_with"
-                     data-shape="pill"
-                     data-logo_alignment="left">
-                </div>
+                <!-- Custom Google Login Button -->
+                <button id="googleLoginBtn" class="google-btn" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-card); color: white; cursor: pointer; transition: 0.3s;">
+                    <i class="fab fa-google"></i> 
+                    <span>Google 계정으로 로그인</span>
+                </button>
                 
                 <!-- User Profile (Hidden by default) -->
                 <div id="userProfile" class="user-profile" style="display: none;">

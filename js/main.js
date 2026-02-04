@@ -67,21 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== Initial Setup Helpers =====
 function setupNavbar() {
     const navbar = document.getElementById('navbar');
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.querySelector('.nav-links');
+    const authContainer = document.querySelector('.auth-container');
+
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) navbar.classList.add('scrolled');
         else navbar.classList.remove('scrolled');
     });
-    const mobileBtn = document.getElementById('mobileMenuBtn');
-    const navLinks = document.querySelector('.nav-links'); // This might need adjustment if using CSS selector for links container
-    // Assuming .nav-links is the UL. If structure changed, verify
-    const navUl = document.querySelector('.nav-links');
 
-    if (mobileBtn && navUl) {
-        mobileBtn.addEventListener('click', () => {
-            mobileBtn.classList.toggle('active');
-            navUl.classList.toggle('active'); // Toggle class on UL
-        });
-    }
+    // Mobile menu logic removed (Always visible per user request)
 }
 
 function setupAnimations() {
