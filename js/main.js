@@ -28,8 +28,14 @@ function handleCredentialResponse(response) {
     const responsePayload = decodeJwtResponse(response.credential);
     console.log('Encoded JWT ID token: ' + response.credential);
     
-    // ADMIN MENU CHECK (Logic moved to onAuthStateChanged)
-    // No auto-redirect here anymore
+    // ADMIN MENU CHECK (Simple Email Check)
+    if (responsePayload.email === "cayson0127@gmail.com") {
+        const adminNavItem = document.getElementById('adminNavItem');
+        if(adminNavItem) {
+            adminNavItem.style.display = 'block';
+            console.log("Admin User Detected: Admin Link Visible");
+        }
+    }
     
     // Update UI to show profile
     const signInBtn = document.querySelector('.g_id_signin');
