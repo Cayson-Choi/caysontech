@@ -10,9 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const adminNavItem = document.getElementById('adminNavItem');
             const ADMIN_EMAIL = "cayson0127@gmail.com";
 
-            if (user && user.email === ADMIN_EMAIL && adminNavItem) {
-                adminNavItem.style.display = 'block';
-                console.log("Admin Access Detected");
+            // Check URL params to see if user wants to stay on landing page
+            const urlParams = new URLSearchParams(window.location.search);
+            const stayOnPage = urlParams.has('stay');
+
+            if (user && user.email === ADMIN_EMAIL) {
+                if (!stayOnPage) {
+                    // Auto Redirect
+                    console.log("Admin detected. Redirecting to dashboard...");
+                    window.location.href = 'admin/index.html';
+                } else {
+                    // Just show the link if stay is requested
+                    if(adminNavItem) adminNavItem.style.display = 'block';
+                    console.log("Admin Access - Redirect bypassed via ?stay=true");
+                }
             }
         });
     }
@@ -27,6 +38,12 @@ function handleCredentialResponse(response) {
     // Decode JWT for display purposes
     const responsePayload = decodeJwtResponse(response.credential);
     console.log('Encoded JWT ID token: ' + response.credential);
+    
+    // ADMIN AUTO REDIRECT CHECK
+    if (responsePayload.email === "cayson0127@gmail.com") {
+        window.location.href = 'admin/index.html';
+        return; // Stop execution
+    }
     
     // Update UI to show profile
     const signInBtn = document.querySelector('.g_id_signin');
