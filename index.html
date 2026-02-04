@@ -27,6 +27,8 @@
                 <li><a href="#features" class="nav-link">Expertise</a></li>
                 <li><a href="pages/education.html" class="nav-link">Education</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
+                <!-- Admin Link (Hidden by default) -->
+                <li id="adminNavItem" style="display: none;"><a href="admin/index.html" class="nav-link" style="color: var(--accent); font-weight: 700;">Admin</a></li>
             </ul>
             
             <div class="auth-container">
@@ -262,6 +264,11 @@
             <div class="footer-bottom"><p>&copy; 2026 Cayson Tech. All rights reserved.</p></div>
         </div>
     </footer>
+
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
 
     <script src="js/main.js"></script>
 </body>
