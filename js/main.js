@@ -5,35 +5,29 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Smart Popup with In-App Check)
+    // 1. Google Login Action (Prevent In-App Browser 403 Error)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
             const agent = navigator.userAgent.toLowerCase();
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('snapchat') || agent.includes('line');
             const provider = new firebase.auth.GoogleAuthProvider();
 
             if (isInApp) {
-                // In-App Browser detected: Popup usually blocked or disallowed
-                 alert("⚠️ 현재 인앱 브라우저(카카오/인스타 등)를 사용 중입니다.\n구글 보안 정책으로 로그인이 차단될 수 있습니다.\n\n오류가 발생하면 [점 3개 메뉴] -> [다른 브라우저로 열기]를 해주세요.");
-                 // Try Redirect as fallback for In-App
-                 firebase.auth().signInWithRedirect(provider);
-            } else {
-                // Standard Browser (Chrome, Safari, Samsung Internet, etc)
-                // Use Popup (Faster & Works reliably if cookies blocked)
-                firebase.auth().signInWithPopup(provider)
-                    .then((result) => {
-                         showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
-                    })
-                    .catch((error) => {
-                        console.error("Popup Login Error:", error);
-                        // If Popup fails (popup blocked?), fallback to redirect
-                         if(error.code === 'auth/popup-blocked') {
-                             firebase.auth().signInWithRedirect(provider);
-                         } else {
-                             alert("로그인 실패: " + error.message);
-                         }
-                    });
+                // BLOCK LOGIN to prevent unsightly "Access Blocked: disallowed_useragent" Google error page.
+                // It is impossible to bypass Google's security check inside these apps.
+                alert("🚫 [구글 로그인 불가 안내]\n\n현재 접속하신 브라우저(카카오톡/인스타 등)에서는 구글 보안 정책상 로그인이 차단됩니다.\n\n✅ 해결 방법:\n화면 우측 하단(또는 상단)의 [점 3개 메뉴] -> [다른 브라우저로 열기]를 선택하여 '크롬'이나 '삼성 인터넷'에서 다시 시도해주세요.");
+                return; // Stop here. Do not try to login.
             }
+
+            // Normal Browser -> Proceed with Popup
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                        showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                })
+                .catch((error) => {
+                    console.error("Popup Login Error:", error);
+                    alert("로그인 실패: " + error.message);
+                });
         });
     }
 
