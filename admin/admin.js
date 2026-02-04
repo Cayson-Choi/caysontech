@@ -12,11 +12,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuItems = document.querySelectorAll('.menu-item');
     const pageViews = document.querySelectorAll('.page-view');
     const pageTitle = document.getElementById('pageTitle');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+
+    // Create Overlay for Mobile
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    // Mobile Toggle Logic
+    if(mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+    }
+    // Close when clicking overlay
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    });
 
     menuItems.forEach(item => {
         item.addEventListener('click', (e) => {
+            // Check if it's an external link (Back to Home)
+            if(item.getAttribute('href') && !item.getAttribute('href').startsWith('#')) {
+                return; // Let standard navigation happen
+            }
+
             e.preventDefault();
             const targetPage = item.getAttribute('data-page');
+
+            // Close mobile menu on selection
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
 
             // Update Active Menu
             menuItems.forEach(nav => nav.classList.remove('active'));
