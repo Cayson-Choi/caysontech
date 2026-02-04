@@ -5,34 +5,32 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Mobile/In-App Compatible)
+    // 1. Google Login Action (Robust Mobile Detection)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            // Check for Mobile or In-App User Agent
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Comprehensive Mobile Detection
             const agent = navigator.userAgent.toLowerCase();
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
+            const isSmallScreen = window.innerWidth <= 1024; // Treat tablets/phones as mobile
+            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-            if (isMobile || isInApp) {
-                // Mobile/In-App: Use Redirect (Standard for mobile web)
-                // No alerts, just do it.
-                // console.log("Mobile/In-App detected, using Redirect"); 
+            // If ANY mobile indicator is true, use Redirect
+            if (isMobileUA || isInApp || isSmallScreen || isTouch) {
+                // console.log("Force Redirect: Mobile detected");
                 firebase.auth().signInWithRedirect(provider);
             } else {
-                // Desktop: Use Popup
+                // Only use Popup for strict Desktop environments
                 firebase.auth().signInWithPopup(provider)
                     .then((result) => {
                          showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
                     })
                     .catch((error) => {
                         console.error("Popup Login Error:", error);
-                        // Fallback to redirect if popup blocked
-                        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-                             firebase.auth().signInWithRedirect(provider);
-                        } else {
-                             alert("로그인 실패: " + error.message);
-                        }
+                        // Fallback
+                        firebase.auth().signInWithRedirect(provider);
                     });
             }
         });

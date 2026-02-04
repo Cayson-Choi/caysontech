@@ -93,16 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action (Mobile/In-App Compatible)
+    // Google Login Action (Robust)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const agent = navigator.userAgent.toLowerCase();
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
             
-            if (isMobile || isInApp) {
-                // Mobile/In-App -> Redirect
+            // Comprehensive Mobile Detection
+            const agent = navigator.userAgent.toLowerCase();
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
+            const isSmallScreen = window.innerWidth <= 1024;
+            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            if (isMobileUA || isInApp || isSmallScreen || isTouch) {
+                // Mobile/Touch/Small Screen -> Force Redirect
                 loginError.innerText = "로그인 페이지로 이동합니다...";
                 firebase.auth().signInWithRedirect(provider);
             } else {
@@ -113,11 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error("Popup Error:", error);
                         loginError.innerText = "로그인 실패: " + error.message;
                         // Fallback
-                        if(error.code === 'auth/popup-blocked') {
-                             firebase.auth().signInWithRedirect(provider);
-                        } else {
-                             alert("로그인 실패: " + error.message);
-                        }
+                        firebase.auth().signInWithRedirect(provider);
                     });
             }
         });
