@@ -393,52 +393,59 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
     .mobile-menu-btn { display: none !important; }
     
-    /* Content Layout - Push down below fixed header */
+    /* Content Layout - Stack Vertically on Mobile (No Overlap) */
     .hero { 
-        padding-top: 15rem !important; /* Increase slightly more */
+        padding-top: 11rem !important; /* Space for fixed header */
         padding-bottom: 2rem; 
-        min-height: 100vh;
+        min-height: auto; /* Disable full screen height constraint */
         display: flex;
         flex-direction: column;
-        justify-content: flex-end; /* Push content to avoid covering the 3D model too much */
-        position: relative;
-        z-index: 10; /* Content above background */
+        justify-content: flex-start;
+        align-items: center;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0f 100%); /* Fallback bg */
+    }
+    
+    .hero-content { 
+        width: 100%;
+        padding: 0 1rem;
+        background: transparent; /* No bg needed if not overlapping */
+        text-align: center;
+        order: 1; /* Text First */
+        margin-bottom: 2rem;
+        z-index: 5;
     }
     
     .hero-title { 
         font-size: 2rem; 
-        margin-top: 1rem; 
-        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        color: #ffffff !important; /* Force white */
+        margin-top: 0; 
+        color: #ffffff !important;
+        line-height: 1.3;
     }
     
     .hero-description { 
         font-size: 1rem; 
-        text-shadow: 0 2px 5px rgba(0,0,0,0.8); 
         color: #cccccc !important;
+        margin-bottom: 1.5rem;
     }
-    .section-title { font-size: 1.8rem; }
-    
-    /* Enhance text visibility against 3D background */
-    .hero-content { 
-        background: linear-gradient(to top, rgba(10,10,15,0.95) 30%, rgba(10,10,15,0.4)); 
-        padding: 1.5rem;
-        border-radius: 1rem;
-        gap: 1.5rem; 
-        position: relative;
-        z-index: 20;
-    }
-    
-    /* Push Spline to background on mobile so it doesn't cover text */
+
+    /* Robot - Sit BELOW text */
     .hero-spline {
-        position: fixed;
-        top: 0;
-        left: 0;
+        position: relative !important; /* Reset fixed */
         width: 100%;
-        height: 100vh;
-        z-index: 1 !important; /* Above body, below header/content */
-        opacity: 0.6; /* Dim the robot slightly so text pops */
-        pointer-events: none; /* Let touches pass through to text */
+        height: 350px; /* Dedicate space for robot */
+        top: auto;
+        left: auto;
+        order: 2; /* Robot Second */
+        z-index: 1;
+        opacity: 1;
+        margin-bottom: 2rem;
+        pointer-events: auto;
+    }
+    
+    /* Hide the stats on extremely small screens or adjust */
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .hero-buttons { flex-direction: column; width: 100%; }
