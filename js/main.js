@@ -1,5 +1,22 @@
 // ===== UI Helpers =====
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Admin Auth Check (Firebase)
+    if (typeof firebase !== 'undefined' && window.firebaseConfig) {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.firebaseConfig);
+        }
+        
+        firebase.auth().onAuthStateChanged((user) => {
+            const adminNavItem = document.getElementById('adminNavItem');
+            const ADMIN_EMAIL = "cayson0127@gmail.com";
+
+            if (user && user.email === ADMIN_EMAIL && adminNavItem) {
+                adminNavItem.style.display = 'block';
+                console.log("Admin Access Detected");
+            }
+        });
+    }
+
     setupAnimations();
     setupNavbar();
     setupContactForm();
