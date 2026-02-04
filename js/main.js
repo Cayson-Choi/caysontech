@@ -5,49 +5,47 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Hybrid: Popup for PC, Redirect for Mobile)
+    // 1. Google Login Action (Smart Popup with In-App Check)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
+            const agent = navigator.userAgent.toLowerCase();
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
             const provider = new firebase.auth.GoogleAuthProvider();
-            const isMobile = warningOnMobile(); // Simple check or user agent check
-            
-            // Check if mobile device
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // Mobile: Use Redirect
-                // alert("모바일 환경 감지: 리다이렉트 로그인 시도"); // Debugging
-                firebase.auth().signInWithRedirect(provider).catch(err => alert("리다이렉트 에러: " + err.message));
+
+            if (isInApp) {
+                // In-App Browser detected: Popup usually blocked or disallowed
+                 alert("⚠️ 현재 인앱 브라우저(카카오/인스타 등)를 사용 중입니다.\n구글 보안 정책으로 로그인이 차단될 수 있습니다.\n\n오류가 발생하면 [점 3개 메뉴] -> [다른 브라우저로 열기]를 해주세요.");
+                 // Try Redirect as fallback for In-App
+                 firebase.auth().signInWithRedirect(provider);
             } else {
-                // Desktop: Use Popup (More stable on PC)
+                // Standard Browser (Chrome, Safari, Samsung Internet, etc)
+                // Use Popup (Faster & Works reliably if cookies blocked)
                 firebase.auth().signInWithPopup(provider)
                     .then((result) => {
                          showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
                     })
                     .catch((error) => {
                         console.error("Popup Login Error:", error);
-                        // showToast is cleaner, but use alert if toast fails
-                        alert("로그인 실패: " + error.message);
+                        // If Popup fails (popup blocked?), fallback to redirect
+                         if(error.code === 'auth/popup-blocked') {
+                             firebase.auth().signInWithRedirect(provider);
+                         } else {
+                             alert("로그인 실패: " + error.message);
+                         }
                     });
             }
         });
     }
 
-    // Handle Redirect Result (Only triggers if returning from mobile redirect)
+    // Handle Redirect Result (Backup)
     firebase.auth().getRedirectResult()
         .then((result) => {
             if (result.user) {
-                console.log("Mobile Redirect Login Success:", result.user.email);
+                console.log("Redirect Login Success:", result.user.email);
                 showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
             }
         })
-        .catch((error) => {
-            console.error("Redirect Result Error:", error);
-            if(error.code !== 'auth/popup-closed-by-user') {
-                 alert("로그인 처리 중 오류: " + error.message);
-            }
-        });
-
-    // Dummy helper if not exists
-    function warningOnMobile() { return false; } 
+        .catch(e => console.error(e)); 
 
     // 2. Auth State Observer
     firebase.auth().onAuthStateChanged((user) => {

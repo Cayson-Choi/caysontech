@@ -93,23 +93,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action (Hybrid)
+    // Google Login Action (Smart)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
+            const agent = navigator.userAgent.toLowerCase();
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
             
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // Mobile -> Redirect
-                loginError.innerText = "모바일 환경: 로그인 페이지로 이동합니다...";
-                firebase.auth().signInWithRedirect(provider).catch(e => alert(e.message));
+            if (isInApp) {
+                // In-App Browser
+                alert("⚠️ 인앱 브라우저에서는 구글 로그인이 차단될 수 있습니다.\n오류 발생 시 [다른 브라우저로 열기]를 이용해주세요.");
+                loginError.innerText = "로그인 페이지로 이동 중...";
+                firebase.auth().signInWithRedirect(provider);
             } else {
-                // Desktop -> Popup
+                // Standard Browser -> Use Popup
                 loginError.innerText = "Google 로그인 진행 중...";
                 firebase.auth().signInWithPopup(provider)
                     .catch((error) => {
                         console.error("Popup Error:", error);
                         loginError.innerText = "로그인 실패: " + error.message;
-                        alert("로그인 실패: " + error.message);
+                        // Fallback
+                        if(error.code === 'auth/popup-blocked') {
+                             firebase.auth().signInWithRedirect(provider);
+                        } else {
+                             alert("로그인 실패: " + error.message);
+                        }
                     });
             }
         });
@@ -123,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch((error) => {
             console.error("Redirect Error:", error);
             loginError.innerText = "오류: " + error.message;
-            alert("로그인 처리 오류: " + error.message);
         });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
