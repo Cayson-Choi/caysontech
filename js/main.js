@@ -5,33 +5,34 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Updated to Redirect for Mobile Compatibility)
+    // 1. Google Login Action (Redirect)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             // Use Redirect instead of Popup to avoid 'disallowed_useragent' errors in in-app browsers
+            // showToast('구글 로그인 페이지로 이동합니다...', 'info'); // Optional feedback
             firebase.auth().signInWithRedirect(provider);
         });
     }
 
-    // Handle Redirect Result (Check if returning from login)
+    // Handle Redirect Result
     firebase.auth().getRedirectResult()
         .then((result) => {
             if (result.user) {
-                showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                console.log("Redirect Login Success:", result.user);
+                // showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
             }
         })
         .catch((error) => {
             console.error("Login Redirect Error:", error);
-            // Don't show toast for "no user" but do show for actual errors
-            if (error.code !== 'auth/popup-closed-by-user') {
-                showToast('로그인 중 문제가 발생했습니다. 다시 시도해주세요.', 'error');
-            }
+            alert(`로그인 오류: ${error.message}`); // Show alert for easier debugging on mobile
         });
 
-    // 2. Auth State Observer (Handles persistence automatically)
+    // 2. Auth State Observer
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
+            console.log("User is signed in:", user.email);
+            // Logged In Logic...
             // Logged In
             if(loginBtn) loginBtn.style.display = 'none';
             if(userProfile) {
