@@ -103,11 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
              // [1] Handle In-App Browsers
              if (isInApp) {
                  if (isAndroid) {
-                     // Android: Auto-switch to Chrome
-                     const currentUrl = window.location.href.replace(/https?:\/\//i, '');
-                     const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
-                     // loginError.innerText = "크롬 브라우저로 이동합니다..."; 
-                     window.location.href = intentUrl;
+                     // Android: Ask user before switching to Chrome
+                     if (confirm("카카오톡 등 인앱 브라우저에서는 구글 로그인이 지원되지 않습니다.\n\n원활한 로그인을 위해 Chrome 브라우저로 이동하시겠습니까?")) {
+                         const currentUrl = window.location.href.replace(/https?:\/\//i, '');
+                         const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+                         window.location.href = intentUrl;
+                     }
                      return; 
                  } else {
                      // iOS: Show Guide

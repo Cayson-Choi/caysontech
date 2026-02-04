@@ -15,12 +15,14 @@ function setupAuth() {
             // [1] Handle In-App Browsers
             if (isInApp) {
                 if (isAndroid) {
-                    // Android: Attempt to auto-open in Chrome
-                    const currentUrl = window.location.href.replace(/https?:\/\//i, '');
-                    // Use intent scheme to open Chrome
-                    const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
-                    window.location.href = intentUrl;
-                    return; // Stop execution
+                    // Android: Ask user before switching to Chrome
+                    if (confirm("카카오톡 등 인앱 브라우저에서는 구글 로그인이 지원되지 않습니다.\n\n원활한 로그인을 위해 Chrome 브라우저로 이동하시겠습니까?")) {
+                        const currentUrl = window.location.href.replace(/https?:\/\//i, '');
+                        // Use intent scheme to open Chrome
+                        const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+                        window.location.href = intentUrl;
+                    }
+                    return; // Stop execution regardless of choice
                 } else {
                     // iOS/Others: Show Instruction (Cannot auto-open)
                     alert("🚫 [구글 보안 정책 안내]\n\n카카오톡/인스타그램 등 앱 내부 브라우저에서는 구글 로그인이 차단됩니다.\n\n✅ 해결 방법:\n화면의 [점 3개 메뉴] → [다른 브라우저로 열기]를 눌러서\nSafari나 Chrome에서 다시 시도해주세요.");
