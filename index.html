@@ -250,6 +250,19 @@
                         <input type="text" id="contactOrg" placeholder="Company/Org" required>
                     </div>
                     <input type="email" id="contactEmail" placeholder="Email Address" required>
+                    
+                    <!-- Course Selection Dropdown -->
+                    <select id="contactCourse" required style="width:100%; padding:1rem; margin-bottom:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; font-family:'Outfit', sans-serif;">
+                        <option value="" disabled selected>관심 있는 교육 과정을 선택해주세요 (Select Course)</option>
+                        <option value="AI 활용">🤖 AI 활용 (AI Application)</option>
+                        <option value="바이브 코딩">✨ 바이브 코딩 (Vibe Coding)</option>
+                        <option value="홈페이지 제작">🌐 홈페이지 제작 (Website Creation)</option>
+                        <option value="파이썬 앱제작">🐍 파이썬 앱제작 (Python App Dev)</option>
+                        <option value="아두이노 활용">⚡ 아두이노 활용 (Arduino)</option>
+                        <option value="마이크로비트 활용">📟 마이크로비트 활용 (Microbit)</option>
+                        <option value="기타 문의">📝 기타 문의 (Other Inquiry)</option>
+                    </select>
+
                     <textarea id="contactMessage" rows="4" placeholder="Message or Inquiry" required></textarea>
                     <button type="submit" class="btn btn-primary btn-full">Send Message <span>→</span></button>
                 </form>

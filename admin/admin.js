@@ -229,19 +229,21 @@ document.addEventListener('DOMContentLoaded', () => {
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now';
+                const course = data.course || '<span style="color:#888;">(일반 문의)</span>';
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${date}</td>
                     <td><div style="font-weight:bold;">${data.name}</div><div style="font-size:0.85rem; color:#888;">${data.org}</div></td>
                     <td><a href="mailto:${data.email}" style="color:var(--primary);">${data.email}</a></td>
+                    <td><span class="badge" style="background:rgba(59, 130, 246, 0.1); color:#3b82f6;">${course}</span></td>
                     <td><div style="white-space:pre-wrap; max-height:100px; overflow-y:auto;">${data.message}</div></td>
                 `;
                 tbody.appendChild(tr);
             });
         }).catch (error => {
             console.error("Error loading inquiries:", error);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color:red;">데이터 로드 실패</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:red;">데이터 로드 실패</td></tr>';
         });
     };
 });

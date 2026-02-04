@@ -177,6 +177,7 @@ function setupContactForm() {
             const name = document.getElementById('contactName').value;
             const org = document.getElementById('contactOrg').value;
             const email = document.getElementById('contactEmail').value;
+            const course = document.getElementById('contactCourse').value; // Get selected course
             const message = document.getElementById('contactMessage').value;
 
             // Save to Firestore
@@ -185,6 +186,7 @@ function setupContactForm() {
                 name: name,
                 org: org,
                 email: email,
+                course: course, // Save course info
                 message: message,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 read: false
