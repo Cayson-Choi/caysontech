@@ -5,20 +5,29 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action
+    // 1. Google Login Action (Updated to Redirect for Mobile Compatibility)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
-                })
-                .catch((error) => {
-                    console.error("Login Error:", error);
-                    showToast('로그인 중 오류가 발생했습니다.', 'error');
-                });
+            // Use Redirect instead of Popup to avoid 'disallowed_useragent' errors in in-app browsers
+            firebase.auth().signInWithRedirect(provider);
         });
     }
+
+    // Handle Redirect Result (Check if returning from login)
+    firebase.auth().getRedirectResult()
+        .then((result) => {
+            if (result.user) {
+                showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+            }
+        })
+        .catch((error) => {
+            console.error("Login Redirect Error:", error);
+            // Don't show toast for "no user" but do show for actual errors
+            if (error.code !== 'auth/popup-closed-by-user') {
+                showToast('로그인 중 문제가 발생했습니다. 다시 시도해주세요.', 'error');
+            }
+        });
 
     // 2. Auth State Observer (Handles persistence automatically)
     firebase.auth().onAuthStateChanged((user) => {
