@@ -5,24 +5,29 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Robust Mobile Detection)
+    // 1. Google Login Action (Robust Mobile Detection & Bypass)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
+            // Setup Provider
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Force account selection - this often bypasses the 'disallowed_useragent' check in webviews
+            provider.setCustomParameters({ prompt: 'select_account' });
+            // Use device language
+            firebase.auth().useDeviceLanguage();
             
             // Comprehensive Mobile Detection
             const agent = navigator.userAgent.toLowerCase();
             const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
-            const isSmallScreen = window.innerWidth <= 1024; // Treat tablets/phones as mobile
+            const isSmallScreen = window.innerWidth <= 1024;
             const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
             // If ANY mobile indicator is true, use Redirect
             if (isMobileUA || isInApp || isSmallScreen || isTouch) {
-                // console.log("Force Redirect: Mobile detected");
+                // Force Redirect for Mobile/In-App
                 firebase.auth().signInWithRedirect(provider);
             } else {
-                // Only use Popup for strict Desktop environments
+                // Desktop
                 firebase.auth().signInWithPopup(provider)
                     .then((result) => {
                          showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');

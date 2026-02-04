@@ -93,10 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action (Robust)
+    // Google Login Action (Final Fix)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Bypass Hack: Force prompt to select account
+            provider.setCustomParameters({ prompt: 'select_account' });
+            firebase.auth().useDeviceLanguage();
             
             // Comprehensive Mobile Detection
             const agent = navigator.userAgent.toLowerCase();
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
             
             if (isMobileUA || isInApp || isSmallScreen || isTouch) {
-                // Mobile/Touch/Small Screen -> Force Redirect
+                // Mobile -> Redirect
                 loginError.innerText = "로그인 페이지로 이동합니다...";
                 firebase.auth().signInWithRedirect(provider);
             } else {
