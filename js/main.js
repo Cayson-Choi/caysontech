@@ -118,18 +118,67 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== Initial Setup Helpers =====
+// ===== Initial Setup Helpers =====
 function setupNavbar() {
     const navbar = document.getElementById('navbar');
-    const mobileBtn = document.getElementById('mobileMenuBtn');
-    const navLinks = document.querySelector('.nav-links');
-    const authContainer = document.querySelector('.auth-container');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
 
+    // 1. Scroll Effect for Navbar Background
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) navbar.classList.add('scrolled');
         else navbar.classList.remove('scrolled');
     });
 
-    // Mobile menu logic removed (Always visible per user request)
+    // 2. ScrollSpy (Auto-update Active Link)
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3 // Trigger when 30% of section is visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                // Remove active from all
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    // Check if link matches (handle href="#id")
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        if (section.id) observer.observe(section);
+    });
+
+    // 3. Smooth Scrolling for Anchor Links
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    // Mobile menu support (if dropdown exists)
+                    // const mobileMenu = document.querySelector('.nav-links');
+                    // if (mobileMenu) mobileMenu.classList.remove('active');
+
+                    // Smooth scroll
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 80, // Offset for fixed header
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
 }
 
 function setupAnimations() {
