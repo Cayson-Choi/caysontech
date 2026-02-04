@@ -395,23 +395,23 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     
     /* Content Layout - Stack Vertically on Mobile (No Overlap) */
     .hero { 
-        padding-top: 11rem !important; /* Space for fixed header */
-        padding-bottom: 2rem; 
-        min-height: auto; /* Disable full screen height constraint */
+        padding-top: 11rem !important; 
+        padding-bottom: 7rem; /* Increased padding to prevent scroll-icon overlap */
+        min-height: auto; 
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0f 100%); /* Fallback bg */
+        background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0f 100%);
     }
     
     .hero-content { 
         width: 100%;
         padding: 0 1rem;
-        background: transparent; /* No bg needed if not overlapping */
+        background: transparent; 
         text-align: center;
-        order: 1; /* Text First */
-        margin-bottom: 2rem;
+        order: 1; 
+        margin-bottom: 0px; /* Removed gap between text/stats and robot */
         z-index: 5;
     }
     
@@ -430,15 +430,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
     /* Robot - Sit BELOW text */
     .hero-spline {
-        position: relative !important; /* Reset fixed */
+        position: relative !important; 
         width: 100%;
-        height: 350px; /* Dedicate space for robot */
+        height: 300px; /* Reduced height for tighter layout */
         top: auto;
         left: auto;
-        order: 2; /* Robot Second */
+        order: 2; 
         z-index: 1;
         opacity: 1;
-        margin-bottom: 2rem;
+        margin-bottom: 0;
         pointer-events: auto;
     }
     
