@@ -93,29 +93,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action (Prevent In-App 403)
+    // Google Login Action (Mobile/In-App Compatible)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const agent = navigator.userAgent.toLowerCase();
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
             
-            if (isInApp) {
-                // Block In-App Login
-                alert("🚫 [로그인 불가]\n\n카카오톡/인스타 등 인앱 브라우저에서는 구글 로그인이 차단됩니다.\n\n✅ [점 3개 메뉴] -> [다른 브라우저로 열기]를 이용해주세요.");
-                return; // Stop.
-            } 
-            
-            // Standard Browser -> Use Popup
-            loginError.innerText = "Google 로그인 진행 중...";
-            firebase.auth().signInWithPopup(provider)
-                .catch((error) => {
-                    console.error("Popup Error:", error);
-                    loginError.innerText = "로그인 실패: " + error.message;
-                    alert("로그인 실패: " + error.message);
-                });
+            if (isMobile || isInApp) {
+                // Mobile/In-App -> Redirect
+                loginError.innerText = "로그인 페이지로 이동합니다...";
+                firebase.auth().signInWithRedirect(provider);
+            } else {
+                // Desktop -> Popup
+                loginError.innerText = "Google 로그인 진행 중...";
+                firebase.auth().signInWithPopup(provider)
+                    .catch((error) => {
+                        console.error("Popup Error:", error);
+                        loginError.innerText = "로그인 실패: " + error.message;
+                        // Fallback
+                        if(error.code === 'auth/popup-blocked') {
+                             firebase.auth().signInWithRedirect(provider);
+                        } else {
+                             alert("로그인 실패: " + error.message);
+                        }
+                    });
+            }
         });
     }
+
+    // Handle Redirect Result
+    firebase.auth().getRedirectResult()
+        .then((result) => {
+            if (result.user) console.log("Admin Redirect Success");
+        })
+        .catch((error) => {
+            console.error("Redirect Error:", error);
+            loginError.innerText = "오류: " + error.message;
+        });
 
     // Handle Redirect Result
     firebase.auth().getRedirectResult()

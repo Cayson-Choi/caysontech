@@ -5,31 +5,48 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Prevent In-App Browser 403 Error)
+    // 1. Google Login Action (Mobile/In-App Compatible)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
-            const agent = navigator.userAgent.toLowerCase();
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('snapchat') || agent.includes('line');
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Check for Mobile or In-App User Agent
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const agent = navigator.userAgent.toLowerCase();
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
 
-            if (isInApp) {
-                // BLOCK LOGIN to prevent unsightly "Access Blocked: disallowed_useragent" Google error page.
-                // It is impossible to bypass Google's security check inside these apps.
-                alert("🚫 [구글 로그인 불가 안내]\n\n현재 접속하신 브라우저(카카오톡/인스타 등)에서는 구글 보안 정책상 로그인이 차단됩니다.\n\n✅ 해결 방법:\n화면 우측 하단(또는 상단)의 [점 3개 메뉴] -> [다른 브라우저로 열기]를 선택하여 '크롬'이나 '삼성 인터넷'에서 다시 시도해주세요.");
-                return; // Stop here. Do not try to login.
+            if (isMobile || isInApp) {
+                // Mobile/In-App: Use Redirect (Standard for mobile web)
+                // No alerts, just do it.
+                // console.log("Mobile/In-App detected, using Redirect"); 
+                firebase.auth().signInWithRedirect(provider);
+            } else {
+                // Desktop: Use Popup
+                firebase.auth().signInWithPopup(provider)
+                    .then((result) => {
+                         showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                    })
+                    .catch((error) => {
+                        console.error("Popup Login Error:", error);
+                        // Fallback to redirect if popup blocked
+                        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                             firebase.auth().signInWithRedirect(provider);
+                        } else {
+                             alert("로그인 실패: " + error.message);
+                        }
+                    });
             }
-
-            // Normal Browser -> Proceed with Popup
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                        showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
-                })
-                .catch((error) => {
-                    console.error("Popup Login Error:", error);
-                    alert("로그인 실패: " + error.message);
-                });
         });
     }
+
+    // Handle Redirect Result
+    firebase.auth().getRedirectResult()
+        .then((result) => {
+            if (result.user) {
+                console.log("Redirect Login Success:", result.user.email);
+                showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+            }
+        })
+        .catch(e => console.error(e));
 
     // Handle Redirect Result (Backup)
     firebase.auth().getRedirectResult()
