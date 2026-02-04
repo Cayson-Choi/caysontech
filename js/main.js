@@ -118,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== Initial Setup Helpers =====
-// ===== Initial Setup Helpers =====
 function setupNavbar() {
     const navbar = document.getElementById('navbar');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -166,10 +165,6 @@ function setupNavbar() {
                 const targetId = href.substring(1);
                 const targetSection = document.getElementById(targetId);
                 if (targetSection) {
-                    // Mobile menu support (if dropdown exists)
-                    // const mobileMenu = document.querySelector('.nav-links');
-                    // if (mobileMenu) mobileMenu.classList.remove('active');
-
                     // Smooth scroll
                     window.scrollTo({
                         top: targetSection.offsetTop - 80, // Offset for fixed header

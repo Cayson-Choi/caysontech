@@ -146,15 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loginError.innerText = "오류: " + error.message;
         });
 
-    // Handle Redirect Result
-    firebase.auth().getRedirectResult()
-        .then((result) => {
-            if (result.user) console.log("Admin Redirect Success");
-        })
-        .catch((error) => {
-            console.error("Redirect Error:", error);
-            loginError.innerText = "오류: " + error.message;
-        });
+
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         if(confirm("정말 로그아웃 하시겠습니까?")) {
