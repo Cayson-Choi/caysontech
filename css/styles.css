@@ -395,14 +395,20 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     
     /* Content Layout - Stack Vertically on Mobile (No Overlap) */
     .hero { 
-        padding-top: 11rem !important; 
-        padding-bottom: 7rem; /* Increased padding to prevent scroll-icon overlap */
+        padding-top: 13rem !important; /* Increased to separate login button from content */
+        padding-bottom: 7rem; 
         min-height: auto; 
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
         background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0f 100%);
+    }
+
+    /* Reduce huge gap between Expertise and Education sections on mobile */
+    .training {
+        padding-top: 2rem !important; /* Drastically reduced from default */
+        padding-bottom: 2rem !important;
     }
     
     .hero-content { 
