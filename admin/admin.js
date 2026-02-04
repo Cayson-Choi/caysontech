@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Firebase (Ensure firebaseConfig is loaded)
     if (typeof firebase !== 'undefined' && window.firebaseConfig) {
-        if(window.firebaseConfig.apiKey === "YOUR_API_KEY") {
-            console.warn("Firebase not configured yet. Using dummy mode.");
-        } else {
-            firebase.initializeApp(window.firebaseConfig);
-            // const db = firebase.firestore();
-            // const auth = firebase.auth();
-        }
+        firebase.initializeApp(window.firebaseConfig);
+        // Initialize services
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+        console.log("Firebase initialized successfully");
     }
 
     // 2. Navigation Handling
@@ -35,78 +33,142 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. Login Handling (Simulation for now)
+    // 3. Login Handling (Google Auth & Security Check)
     const loginOverlay = document.getElementById('loginOverlay');
-    const loginForm = document.getElementById('loginForm');
-    
-    // Check local storage for session
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-        loginOverlay.style.display = 'none';
-        loadDashboardData();
-    }
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const loginError = document.getElementById('loginError');
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('adminEmail').value;
-        const password = document.getElementById('adminPassword').value;
+    // Admin Whitelist
+    const ADMIN_EMAIL = "cayson0127@gmail.com";
 
-        // Simple check (In production, use Firebase Auth)
-        if (email === 'admin@caysontech.com' && password === 'admin1234') {
-            localStorage.setItem('adminLoggedIn', 'true');
-            loginOverlay.style.display = 'none';
-            loadDashboardData();
+    // Auth State Observer
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // Security Check
+            if (user.email === ADMIN_EMAIL) {
+                console.log("Admin Authorized:", user.email);
+                document.querySelector('.admin-name').innerText = user.displayName || 'Admin';
+                // Load Avatar if available
+                if(user.photoURL) {
+                    document.querySelector('.admin-avatar').innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;">`;
+                }
+                loginOverlay.style.display = 'none';
+                loadDashboardData(); // Load real data
+            } else {
+                console.warn("Unauthorized Access Attempt:", user.email);
+                loginError.innerText = "접근 권한이 없는 계정입니다. (" + user.email + ")";
+                firebase.auth().signOut();
+            }
         } else {
-            document.getElementById('loginError').innerText = "이메일 또는 비밀번호가 잘못되었습니다.";
+            loginOverlay.style.display = 'flex';
         }
     });
+
+    // Google Login Action
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            loginError.innerText = "Google 로그인 중...";
+            
+            firebase.auth().signInWithPopup(provider)
+                .catch((error) => {
+                    console.error("Google Login Error:", error);
+                    loginError.innerText = "로그인 실패: " + error.message;
+                });
+        });
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('adminLoggedIn');
-        window.location.reload();
+        if(confirm("정말 로그아웃 하시겠습니까?")) {
+            firebase.auth().signOut().then(() => {
+                window.location.reload();
+            });
+        }
     });
 
-    // 4. Load Dummy Data (To visualize dashboard)
+    // 4. Load Real Data (Firestore)
     function loadDashboardData() {
-        // Stats
-        document.getElementById('todayNewStudent').innerText = "3";
-        document.getElementById('activeCourses').innerText = "4";
-        document.getElementById('pendingInquiries').innerText = "2";
-        document.getElementById('monthlyGraduates').innerText = "12";
+        const db = firebase.firestore();
 
-        // Course List
-        const courseTable = document.getElementById('courseTableBody');
-        if(courseTable) {
-            courseTable.innerHTML = `
-                <tr>
-                    <td><strong>AI Practical Intelligence</strong><br><span style="font-size:0.8rem;color:#888;">#AI #Basic</span></td>
-                    <td>AI 활용</td>
-                    <td><span class="status-badge status-active">모집중</span></td>
-                    <td>15명</td>
-                    <td><button class="action-btn" style="padding:0.3rem;"><i class="fas fa-ellipsis-v"></i></button></td>
-                </tr>
-                <tr>
-                    <td><strong>Web & Digital Production</strong><br><span style="font-size:0.8rem;color:#888;">#Web #Project</span></td>
-                    <td>웹 개발</td>
-                    <td><span class="status-badge status-active">진행중</span></td>
-                    <td>8명</td>
-                    <td><button class="action-btn" style="padding:0.3rem;"><i class="fas fa-ellipsis-v"></i></button></td>
-                </tr>
-            `;
-        }
+        // A. Listen for Inquiries (Real-time)
+        db.collection('inquiries').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+            const inquiries = [];
+            let pendingCount = 0;
+            const activityList = document.getElementById('activityList');
+            const inquiryList = document.getElementById('inquiryList');
+            const pendingBadge = document.getElementById('inquiryBadge');
 
-        // Activity Log
-        const activityList = document.getElementById('activityList');
-        if(activityList) {
-            activityList.innerHTML = `
-                <div style="padding:1rem; border-bottom:1px solid #2d2d3a;">
-                    <span style="color:var(--accent);font-weight:600;">[신청]</span> 김철수님이 'AI Practical' 과정을 신청했습니다.
-                    <div style="font-size:0.8rem;color:#888;margin-top:0.3rem;">10분 전</div>
-                </div>
-                <div style="padding:1rem; border-bottom:1px solid #2d2d3a;">
-                    <span style="color:var(--warning);font-weight:600;">[문의]</span> 기업 교육 견적 요청이 도착했습니다. (삼성전자)
-                    <div style="font-size:0.8rem;color:#888;margin-top:0.3rem;">1시간 전</div>
-                </div>
-            `;
-        }
+            // Clear Lists
+            if(activityList) activityList.innerHTML = '';
+            if(inquiryList) inquiryList.innerHTML = '';
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id;
+                inquiries.push(data);
+                
+                if(data.status === 'pending') pendingCount++;
+
+                // Add to Inquiry List (Tab View)
+                if(inquiryList) {
+                    const date = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'Just now';
+                    const statusClass = data.status === 'pending' ? 'status-draft' : 'status-active';
+                    const statusText = data.status === 'pending' ? '대기중' : '답변완료';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'card';
+                    item.style.marginBottom = '1rem';
+                    item.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.8rem;">
+                            <div>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                                <span style="font-size:0.85rem; color:#888; margin-left:0.5rem;">${date}</span>
+                            </div>
+                            <button class="action-btn" onclick="toggleStatus('${doc.id}', '${data.status}')" style="padding:0.3rem 0.6rem; font-size:0.8rem;">
+                                ${data.status === 'pending' ? '<i class="fas fa-check"></i> 처리완료' : '<i class="fas fa-undo"></i> 대기질'}
+                            </button>
+                        </div>
+                        <h4 style="font-size:1.1rem; margin-bottom:0.5rem;">${data.name} <span style="font-size:0.9rem; color:#888; font-weight:400;">(${data.email})</span></h4>
+                        <p style="color:#ccc; font-size:0.95rem; line-height:1.5;">${data.message}</p>
+                        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--accent);"><i class="fas fa-phone"></i> ${data.phone}</div>
+                    `;
+                    inquiryList.appendChild(item);
+                }
+
+                // Add to Activity Log (Dashboard View - Show max 5)
+                if(activityList && inquiries.length <= 5) {
+                    const actItem = document.createElement('div');
+                    actItem.style.padding = '1rem';
+                    actItem.style.borderBottom = '1px solid #2d2d3a';
+                    actItem.innerHTML = `
+                        <span style="color:var(--accent);font-weight:600;">[문의]</span> ${data.name}님이 문의를 남겼습니다.
+                        <div style="font-size:0.8rem;color:#888;margin-top:0.3rem;">${data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : '방금 전'}</div>
+                    `;
+                    activityList.appendChild(actItem);
+                }
+            });
+
+            // Update Counts
+            document.getElementById('pendingInquiries').innerText = pendingCount;
+            if(pendingBadge) pendingBadge.innerText = pendingCount;
+
+        }, (error) => {
+            console.error("Error getting inquiries:", error);
+        });
+
+        // B. Dummy Stats for other fields (Connect DB later)
+        document.getElementById('todayNewStudent').innerText = "0"; // To implement
+        document.getElementById('activeCourses').innerText = "0"; // To implement
+        document.getElementById('monthlyGraduates').innerText = "0"; // To implement
     }
+
+    // Global function for onclick events
+    window.toggleStatus = function(id, currentStatus) {
+        const newStatus = currentStatus === 'pending' ? 'resolved' : 'pending';
+        firebase.firestore().collection('inquiries').doc(id).update({
+            status: newStatus
+        }).then(() => {
+            console.log("Status updated");
+        }).catch(err => console.error(err));
+    };
 });

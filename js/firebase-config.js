@@ -10,12 +10,12 @@
 */
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCdj3265j_3wpnP09yhIEsmPjzSuJALVms",
+    authDomain: "caysontechwebpage-548bf.firebaseapp.com",
+    projectId: "caysontechwebpage-548bf",
+    storageBucket: "caysontechwebpage-548bf.firebasestorage.app",
+    messagingSenderId: "228371814866",
+    appId: "1:228371814866:web:a4cadfd955c95f1e43d00b"
 };
 
 // Initialize Firebase (We will load libraries from CDN in HTML)
