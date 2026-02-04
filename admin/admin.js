@@ -93,19 +93,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action
+    // Google Login Action (Redirect)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            loginError.innerText = "Google 로그인 중...";
-            
-            firebase.auth().signInWithPopup(provider)
-                .catch((error) => {
-                    console.error("Google Login Error:", error);
-                    loginError.innerText = "로그인 실패: " + error.message;
-                });
+            loginError.innerText = "Google 로그인 페이지로 이동합니다...";
+            firebase.auth().signInWithRedirect(provider);
         });
     }
+
+    // Handle Redirect Result
+    firebase.auth().getRedirectResult()
+        .then((result) => {
+            if (result.user) {
+                console.log("Admin Login Redirect Success:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Admin Login Error:", error);
+            loginError.innerText = "로그인 오류: " + error.message;
+            if (error.code === 'auth/operation-not-allowed' || error.message.includes('domain')) {
+                alert("Firebase Console에서 도메인 승인이 필요합니다!");
+            }
+        });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         if(confirm("정말 로그아웃 하시겠습니까?")) {
