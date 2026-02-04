@@ -1,76 +1,68 @@
-// ===== UI Helpers =====
-document.addEventListener('DOMContentLoaded', () => {
-    // 0. Admin Auth Check (Firebase)
-    if (typeof firebase !== 'undefined' && window.firebaseConfig) {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(window.firebaseConfig);
-        }
-        
-        firebase.auth().onAuthStateChanged((user) => {
-            const adminNavItem = document.getElementById('adminNavItem');
-            const ADMIN_EMAIL = "cayson0127@gmail.com";
+function setupAuth() {
+    const loginBtn = document.getElementById('googleLoginBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userImage = document.getElementById('userImage');
+    const userName = document.getElementById('userName');
+    const adminNavItem = document.getElementById('adminNavItem');
 
-            if (user && user.email === ADMIN_EMAIL && adminNavItem) {
-                adminNavItem.style.display = 'block';
-                console.log("Admin Logged In - Menu Item Enabled");
-            }
+    // 1. Google Login Action
+    if(loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error);
+                    showToast('로그인 중 오류가 발생했습니다.', 'error');
+                });
         });
     }
 
+    // 2. Auth State Observer (Handles persistence automatically)
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // Logged In
+            if(loginBtn) loginBtn.style.display = 'none';
+            if(userProfile) {
+                userProfile.style.display = 'flex';
+                if(userImage) userImage.src = user.photoURL;
+                if(userName) userName.innerText = user.displayName;
+            }
+
+            // Admin Check
+            const ADMIN_EMAIL = "cayson0127@gmail.com";
+            if (user.email === ADMIN_EMAIL && adminNavItem) {
+                adminNavItem.style.display = 'block';
+                console.log("Admin Access Granted");
+            }
+
+        } else {
+            // Logged Out
+            if(loginBtn) loginBtn.style.display = 'flex';
+            if(userProfile) userProfile.style.display = 'none';
+            if(adminNavItem) adminNavItem.style.display = 'none';
+        }
+    });
+}
+
+function handleSignOut() {
+    firebase.auth().signOut().then(() => {
+        showToast('로그아웃 되었습니다.', 'info');
+    });
+}
+
+// Ensure setupAuth is called
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof firebase !== 'undefined' && window.firebaseConfig) {
+        if (!firebase.apps.length) firebase.initializeApp(window.firebaseConfig);
+        setupAuth();
+    }
     setupAnimations();
     setupNavbar();
     setupContactForm();
 });
-
-// ===== Google Login Handling =====
-function handleCredentialResponse(response) {
-    // Decode JWT for display purposes
-    const responsePayload = decodeJwtResponse(response.credential);
-    console.log('Encoded JWT ID token: ' + response.credential);
-    
-    // ADMIN MENU CHECK (Simple Email Check)
-    if (responsePayload.email === "cayson0127@gmail.com") {
-        const adminNavItem = document.getElementById('adminNavItem');
-        if(adminNavItem) {
-            adminNavItem.style.display = 'block';
-            console.log("Admin User Detected: Admin Link Visible");
-        }
-    }
-    
-    // Update UI to show profile
-    const signInBtn = document.querySelector('.g_id_signin');
-    const userProfile = document.getElementById('userProfile');
-    
-    if (signInBtn) signInBtn.style.display = 'none';
-    if (userProfile) {
-        userProfile.style.display = 'flex';
-        document.getElementById('userImage').src = responsePayload.picture;
-        document.getElementById('userName').innerText = responsePayload.name;
-    }
-
-    showToast(`환영합니다, ${responsePayload.name}님! 👋`, 'success');
-}
-
-function handleSignOut() {
-    // Reset UI
-    const signInBtn = document.querySelector('.g_id_signin');
-    const userProfile = document.getElementById('userProfile');
-    
-    if (signInBtn) signInBtn.style.display = 'block';
-    if (userProfile) userProfile.style.display = 'none';
-    
-    google.accounts.id.disableAutoSelect(); // Sign out from Google
-    showToast('로그아웃 되었습니다.', 'info');
-}
-
-function decodeJwtResponse(token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-}
 
 // ===== Initial Setup Helpers =====
 function setupNavbar() {
