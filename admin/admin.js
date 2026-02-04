@@ -93,36 +93,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google Login Action (Final Fix)
+    // Google Login Action (Smart In-App Handling)
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
+             const agent = navigator.userAgent.toLowerCase();
+             const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
+             const isAndroid = agent.includes('android');
+
+             // [1] Handle In-App Browsers
+             if (isInApp) {
+                 if (isAndroid) {
+                     // Android: Auto-switch to Chrome
+                     const currentUrl = window.location.href.replace(/https?:\/\//i, '');
+                     const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+                     // loginError.innerText = "크롬 브라우저로 이동합니다..."; 
+                     window.location.href = intentUrl;
+                     return; 
+                 } else {
+                     // iOS: Show Guide
+                     alert("🚫 [구글 보안 정책 안내]\n\n카카오톡/인스타 등 인앱 브라우저에서는 구글 로그인이 차단됩니다.\n\n✅ [점 3개 메뉴] → [다른 브라우저로 열기]를 이용해주세요.");
+                     return;
+                 }
+             }
+
+            // [2] Standard Browser -> Popup
             const provider = new firebase.auth.GoogleAuthProvider();
-            // Bypass Hack: Force prompt to select account
             provider.setCustomParameters({ prompt: 'select_account' });
             firebase.auth().useDeviceLanguage();
             
-            // Comprehensive Mobile Detection
-            const agent = navigator.userAgent.toLowerCase();
-            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook');
-            const isSmallScreen = window.innerWidth <= 1024;
-            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            
-            if (isMobileUA || isInApp || isSmallScreen || isTouch) {
-                // Mobile -> Redirect
-                loginError.innerText = "로그인 페이지로 이동합니다...";
-                firebase.auth().signInWithRedirect(provider);
-            } else {
-                // Desktop -> Popup
-                loginError.innerText = "Google 로그인 진행 중...";
-                firebase.auth().signInWithPopup(provider)
-                    .catch((error) => {
-                        console.error("Popup Error:", error);
-                        loginError.innerText = "로그인 실패: " + error.message;
-                        // Fallback
+            loginError.innerText = "Google 로그인 진행 중...";
+            firebase.auth().signInWithPopup(provider)
+                .catch((error) => {
+                    console.error("Popup Error:", error);
+                    loginError.innerText = "로그인 실패: " + error.message;
+                    if (error.code === 'auth/popup-blocked') {
                         firebase.auth().signInWithRedirect(provider);
-                    });
-            }
+                    } else {
+                        alert("로그인 실패: " + error.message);
+                    }
+                });
         });
     }
 

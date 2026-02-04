@@ -5,39 +5,47 @@ function setupAuth() {
     const userName = document.getElementById('userName');
     const adminNavItem = document.getElementById('adminNavItem');
 
-    // 1. Google Login Action (Robust Mobile Detection & Bypass)
+    // 1. Google Login Action (Smart In-App Handling)
     if(loginBtn) {
         loginBtn.addEventListener('click', () => {
-            // Setup Provider
-            const provider = new firebase.auth.GoogleAuthProvider();
-            // Force account selection - this often bypasses the 'disallowed_useragent' check in webviews
-            provider.setCustomParameters({ prompt: 'select_account' });
-            // Use device language
-            firebase.auth().useDeviceLanguage();
-            
-            // Comprehensive Mobile Detection
             const agent = navigator.userAgent.toLowerCase();
-            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line');
-            const isSmallScreen = window.innerWidth <= 1024;
-            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isInApp = agent.includes('kakao') || agent.includes('instagram') || agent.includes('naver') || agent.includes('facebook') || agent.includes('line') || agent.includes('snapchat');
+            const isAndroid = agent.includes('android');
 
-            // If ANY mobile indicator is true, use Redirect
-            if (isMobileUA || isInApp || isSmallScreen || isTouch) {
-                // Force Redirect for Mobile/In-App
-                firebase.auth().signInWithRedirect(provider);
-            } else {
-                // Desktop
-                firebase.auth().signInWithPopup(provider)
-                    .then((result) => {
-                         showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
-                    })
-                    .catch((error) => {
-                        console.error("Popup Login Error:", error);
-                        // Fallback
-                        firebase.auth().signInWithRedirect(provider);
-                    });
+            // [1] Handle In-App Browsers
+            if (isInApp) {
+                if (isAndroid) {
+                    // Android: Attempt to auto-open in Chrome
+                    const currentUrl = window.location.href.replace(/https?:\/\//i, '');
+                    // Use intent scheme to open Chrome
+                    const intentUrl = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+                    window.location.href = intentUrl;
+                    return; // Stop execution
+                } else {
+                    // iOS/Others: Show Instruction (Cannot auto-open)
+                    alert("🚫 [구글 보안 정책 안내]\n\n카카오톡/인스타그램 등 앱 내부 브라우저에서는 구글 로그인이 차단됩니다.\n\n✅ 해결 방법:\n화면의 [점 3개 메뉴] → [다른 브라우저로 열기]를 눌러서\nSafari나 Chrome에서 다시 시도해주세요.");
+                    return; // Stop execution to prevent 403 error screen
+                }
             }
+
+            // [2] Standard Browser (Chrome, Safari, Samsung Internet, etc)
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' }); // Good practice
+            firebase.auth().useDeviceLanguage();
+
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                     showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                })
+                .catch((error) => {
+                    console.error("Popup Login Error:", error);
+                    // Fallback to Redirect if Popup is blocked (rare in standard browsers)
+                    if (error.code === 'auth/popup-blocked') {
+                        firebase.auth().signInWithRedirect(provider);
+                    } else {
+                        alert("로그인 실패: " + error.message);
+                    }
+                });
         });
     }
 
