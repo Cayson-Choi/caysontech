@@ -25,7 +25,7 @@ function setupAuth() {
                     return; // Stop execution regardless of choice
                 } else {
                     // iOS/Others: Show Instruction (Cannot auto-open)
-                    alert("🚫 [구글 보안 정책 안내]\n\n카카오톡/인스타그램 등 앱 내부 브라우저에서는 구글 로그인이 차단됩니다.\n\n✅ 해결 방법:\n화면의 [점 3개 메뉴] → [다른 브라우저로 열기]를 눌러서\nSafari나 Chrome에서 다시 시도해주세요.");
+                    alert("🚫 [구글 보안 정책 안내]\n\n카카오톡/인스타그램 등 앱 내부 브라우저에서는 구글 로그인이 차단됩니다.\n\n해결 방법:\n화면의 [점 3개 메뉴] → [다른 브라우저로 열기]를 눌러서\nSafari나 Chrome에서 다시 시도해주세요.");
                     return; // Stop execution to prevent 403 error screen
                 }
             }
@@ -37,7 +37,7 @@ function setupAuth() {
 
             firebase.auth().signInWithPopup(provider)
                 .then((result) => {
-                     showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                     showToast(`환영합니다, ${result.user.displayName}님!`, 'success');
                 })
                 .catch((error) => {
                     console.error("Popup Login Error:", error);
@@ -56,7 +56,7 @@ function setupAuth() {
         .then((result) => {
             if (result.user) {
                 console.log("Redirect Login Success:", result.user.email);
-                showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                showToast(`환영합니다, ${result.user.displayName}님!`, 'success');
             }
         })
         .catch(e => console.error(e));
@@ -66,7 +66,7 @@ function setupAuth() {
         .then((result) => {
             if (result.user) {
                 console.log("Redirect Login Success:", result.user.email);
-                showToast(`환영합니다, ${result.user.displayName}님! 👋`, 'success');
+                showToast(`환영합니다, ${result.user.displayName}님!`, 'success');
             }
         })
         .catch(e => console.error(e)); 
@@ -236,9 +236,9 @@ function setupContactForm() {
                 read: false
             })
             .then(() => {
-                showToast('메시지가 성공적으로 전송되었습니다! ✅', 'success');
+                showToast('메시지가 성공적으로 전송되었습니다!', 'success');
                 form.reset();
-                btn.innerHTML = 'Sent! 🎉';
+                btn.innerHTML = 'Sent!';
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
