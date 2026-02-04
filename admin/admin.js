@@ -166,87 +166,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Load Real Data (Firestore)
     function loadDashboardData() {
+        if (!firebase.auth().currentUser) return;
+        
         const db = firebase.firestore();
 
-        // A. Listen for Inquiries (Real-time)
-        db.collection('inquiries').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
-            const inquiries = [];
-            let pendingCount = 0;
+        // A. Listen for Messages (Real-time) for Dashboard Stats
+        db.collection('messages').orderBy('timestamp', 'desc').limit(5).onSnapshot((snapshot) => {
+            let pendingCount = 0; // In a real app, you'd allow 'marking as read'. For now, simple count.
             const activityList = document.getElementById('activityList');
-            const inquiryList = document.getElementById('inquiryList');
-            const pendingBadge = document.getElementById('inquiryBadge');
 
-            // Clear Lists
             if(activityList) activityList.innerHTML = '';
-            if(inquiryList) inquiryList.innerHTML = '';
 
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                data.id = doc.id;
-                inquiries.push(data);
-                
-                if(data.status === 'pending') pendingCount++;
-
-                // Add to Inquiry List (Tab View)
-                if(inquiryList) {
-                    const date = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'Just now';
-                    const statusClass = data.status === 'pending' ? 'status-draft' : 'status-active';
-                    const statusText = data.status === 'pending' ? '대기중' : '답변완료';
+            // Count 'unread' if we had that field, or just showing latest 5
+            
+            // Populate Recent Activity Log
+            if (snapshot.empty) {
+                if(activityList) activityList.innerHTML = '<div class="empty-state">최근 메시지가 없습니다.</div>';
+            } else {
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now';
                     
-                    const item = document.createElement('div');
-                    item.className = 'card';
-                    item.style.marginBottom = '1rem';
-                    item.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.8rem;">
-                            <div>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                                <span style="font-size:0.85rem; color:#888; margin-left:0.5rem;">${date}</span>
+                    if(activityList) {
+                        const div = document.createElement('div');
+                        div.className = 'activity-item';
+                        div.innerHTML = `
+                            <div class="activity-icon icon-blue"><i class="fas fa-envelope"></i></div>
+                            <div class="activity-content">
+                                <strong>${data.name}</strong>님이 메시지를 보냈습니다.
+                                <span class="activity-time">${date}</span>
                             </div>
-                            <button class="action-btn" onclick="toggleStatus('${doc.id}', '${data.status}')" style="padding:0.3rem 0.6rem; font-size:0.8rem;">
-                                ${data.status === 'pending' ? '<i class="fas fa-check"></i> 처리완료' : '<i class="fas fa-undo"></i> 대기질'}
-                            </button>
-                        </div>
-                        <h4 style="font-size:1.1rem; margin-bottom:0.5rem;">${data.name} <span style="font-size:0.9rem; color:#888; font-weight:400;">(${data.email})</span></h4>
-                        <p style="color:#ccc; font-size:0.95rem; line-height:1.5;">${data.message}</p>
-                        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--accent);"><i class="fas fa-phone"></i> ${data.phone}</div>
-                    `;
-                    inquiryList.appendChild(item);
-                }
-
-                // Add to Activity Log (Dashboard View - Show max 5)
-                if(activityList && inquiries.length <= 5) {
-                    const actItem = document.createElement('div');
-                    actItem.style.padding = '1rem';
-                    actItem.style.borderBottom = '1px solid #2d2d3a';
-                    actItem.innerHTML = `
-                        <span style="color:var(--accent);font-weight:600;">[문의]</span> ${data.name}님이 문의를 남겼습니다.
-                        <div style="font-size:0.8rem;color:#888;margin-top:0.3rem;">${data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : '방금 전'}</div>
-                    `;
-                    activityList.appendChild(actItem);
-                }
-            });
-
-            // Update Counts
-            document.getElementById('pendingInquiries').innerText = pendingCount;
-            if(pendingBadge) pendingBadge.innerText = pendingCount;
-
-        }, (error) => {
-            console.error("Error getting inquiries:", error);
+                        `;
+                        activityList.appendChild(div);
+                    }
+                    if (!data.read) pendingCount++;
+                });
+            }
+            // Update Badge & Stat
+            if(document.getElementById('pendingInquiries')) document.getElementById('pendingInquiries').innerText = pendingCount;
+            if(document.getElementById('inquiryBadge')) document.getElementById('inquiryBadge').innerText = pendingCount;
+            
+            // Also refresh table if on inquiries page
+            if(document.getElementById('inquiryTableBody')) loadInquiries();
         });
-
-        // B. Dummy Stats for other fields (Connect DB later)
-        document.getElementById('todayNewStudent').innerText = "0"; // To implement
-        document.getElementById('activeCourses').innerText = "0"; // To implement
-        document.getElementById('monthlyGraduates').innerText = "0"; // To implement
     }
 
-    // Global function for onclick events
-    window.toggleStatus = function(id, currentStatus) {
-        const newStatus = currentStatus === 'pending' ? 'resolved' : 'pending';
-        firebase.firestore().collection('inquiries').doc(id).update({
-            status: newStatus
-        }).then(() => {
-            console.log("Status updated");
-        }).catch(err => console.error(err));
+    // 5. Load Inquiries Table (Called by button + Dashboard listener)
+    window.loadInquiries = function() {
+        const tbody = document.getElementById('inquiryTableBody');
+        if (!tbody) return;
+
+        const db = firebase.firestore();
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">로딩 중...</td></tr>';
+
+        db.collection('messages').orderBy('timestamp', 'desc').get().then((snapshot) => {
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">접수된 문의가 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td><div style="font-weight:bold;">${data.name}</div><div style="font-size:0.85rem; color:#888;">${data.org}</div></td>
+                    <td><a href="mailto:${data.email}" style="color:var(--primary);">${data.email}</a></td>
+                    <td><div style="white-space:pre-wrap; max-height:100px; overflow-y:auto;">${data.message}</div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }).catch (error => {
+            console.error("Error loading inquiries:", error);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color:red;">데이터 로드 실패</td></tr>';
+        });
     };
 });

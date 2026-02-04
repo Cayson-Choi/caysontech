@@ -245,9 +245,12 @@
                 </div>
                 <form class="contact-form" id="contactForm">
                     <h3>Get In Touch</h3>
-                    <div class="form-row"><input type="text" placeholder="Name" required><input type="text" placeholder="Company/Org" required></div>
-                    <input type="email" placeholder="Email Address" required>
-                    <textarea rows="4" placeholder="Message or Inquiry" required></textarea>
+                    <div class="form-row">
+                        <input type="text" id="contactName" placeholder="Name" required>
+                        <input type="text" id="contactOrg" placeholder="Company/Org" required>
+                    </div>
+                    <input type="email" id="contactEmail" placeholder="Email Address" required>
+                    <textarea id="contactMessage" rows="4" placeholder="Message or Inquiry" required></textarea>
                     <button type="submit" class="btn btn-primary btn-full">Send Message <span>→</span></button>
                 </form>
             </div>
@@ -274,6 +277,7 @@
     <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <!-- Main Logic (Versioned for Cache Busting) -->
     <script defer src="js/main.js?v=final_fix_6"></script>

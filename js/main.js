@@ -168,16 +168,42 @@ function setupContactForm() {
     if (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            
             const btn = form.querySelector('button');
             const originalText = btn.innerHTML;
             btn.innerHTML = 'Sending...';
             btn.disabled = true;
-            setTimeout(() => {
-                showToast('메시지가 전송되었습니다! 🚀', 'success');
+
+            const name = document.getElementById('contactName').value;
+            const org = document.getElementById('contactOrg').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // Save to Firestore
+            const db = firebase.firestore();
+            db.collection('messages').add({
+                name: name,
+                org: org,
+                email: email,
+                message: message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false
+            })
+            .then(() => {
+                showToast('메시지가 성공적으로 전송되었습니다! ✅', 'success');
                 form.reset();
+                btn.innerHTML = 'Sent! 🎉';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 3000);
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+                showToast('전송 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }, 1500);
+            });
         });
     }
 }
